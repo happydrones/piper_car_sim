@@ -24,7 +24,7 @@ def generate_launch_description():
     package_name = 'my_arm_description'
     pkg_Path = FindPackageShare(package_name)
     # model_urdf_name ='piper_no_gripper_description_gazebo.xacro'
-    model_urdf_name ='piper_with_my_gripper_description_gazebo.urdf.xacro'
+    model_urdf_name ='test_gripper.urdf.xacro'
 
     # ====== parameters ======
     package_arg = DeclareLaunchArgument('urdf_package',
