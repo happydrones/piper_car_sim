@@ -2,12 +2,23 @@
 controller_manager:
   ros__parameters:
     update_rate: 500  # Hz
+    use_sim_time: true
 
     arm_controller:
       type: position_controllers/JointGroupPositionController
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+      joints:
+        - joint1
+        - joint2
+        - joint3
+        - joint4
+        - joint5
+        - joint6
+      state_interfaces:
+        - position
+
 
 arm_controller:
   ros__parameters:
@@ -18,6 +29,11 @@ arm_controller:
       - joint4
       - joint5
       - joint6
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
     # 可选的发布/监控频率（给默认值即可，不写也行）
     state_publish_rate: 50.0
     action_monitor_rate: 20.0

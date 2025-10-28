@@ -40,7 +40,7 @@ def generate_launch_description():
     start_gazebo_cmd =  ExecuteProcess(
         cmd=['gazebo', '--verbose','-s', 'libgazebo_ros_init.so', '-s', 'libgazebo_ros_factory.so'],
         output='screen')
-    
+
     rsp = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -58,6 +58,11 @@ def generate_launch_description():
     )
     action_load_joint_state_controller = ExecuteProcess(
         cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 
+             'joint_state_broadcaster'],
+        output='screen'
+        )
+    action_load_joint_controller =ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 
              'arm_controller'],
         output='screen'
         )
@@ -67,11 +72,18 @@ def generate_launch_description():
                 on_exit=[action_load_joint_state_controller],
             )
     )
+    close_evt2 = RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=action_load_joint_state_controller,
+                on_exit=[action_load_joint_controller],
+            )
+    )
     rviz = Node(
         package='rviz2',
         executable='rviz2',
         name='rviz2',
         arguments=['-d', LaunchConfiguration('rvizconfig')],
+        parameters=[{'use_sim_time':True}],
         output='screen'
     )
 
@@ -83,9 +95,10 @@ def generate_launch_description():
     ld.add_action(package_arg)
     ld.add_action(rviz_arg)
     ld.add_action(rviz)
+
     ld.add_action(rsp)
-    # 把它添加进来
-    ld.add_action(jsp)
+ 
     ld.add_action(spawn_entity_cmd)
     ld.add_action(close_evt1)
+    ld.add_action(close_evt2)
     return ld
