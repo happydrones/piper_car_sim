@@ -1,4 +1,4 @@
-#TODO  bug: 目前手臂无法在gazebo中正常显示，并且会遍历其他路径寻找urdf文件，怀疑是model参数传递的问题
+#FIXME  目前手臂无法在gazebo中正常显示，并且会遍历其他路径寻找urdf文件，怀疑是model参数传递的问题
 #TODO  控制也仅仅作用在了rviz中
 import os
 from launch import LaunchDescription
@@ -200,8 +200,6 @@ def generate_launch_description():
 
 
 
-# ========== 9) 分步式组装 ==========
-    #TODO: 完善理解
     ld = LaunchDescription()
 
     # 先声明参数
@@ -211,4 +209,3 @@ def generate_launch_description():
     ld.add_action(rviz_config_arg)
     ld.add_action(description_launch_py)
     return ld
-    #TODO: 完善理解

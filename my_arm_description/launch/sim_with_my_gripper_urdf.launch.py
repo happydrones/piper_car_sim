@@ -70,9 +70,8 @@ def generate_launch_description():
     )
 
 # ========== 9) 分步式组装 ==========
-    #TODO: 完善理解
-    ld = LaunchDescription()
 
+    ld = LaunchDescription()
     # 先声明参数
     ld.add_action(package_arg)
     ld.add_action(start_gazebo_arg)
@@ -83,4 +82,3 @@ def generate_launch_description():
     ld.add_action(urdf_spawner_node)
     ld.add_action(load_joint_state_controller)
     return ld
-    #TODO: 完善理解

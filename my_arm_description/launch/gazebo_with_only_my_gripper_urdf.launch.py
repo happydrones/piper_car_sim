@@ -158,7 +158,6 @@ def generate_launch_description():
     # )
 
 # ========== 9) 分步式组装 ==========
-    #TODO: 完善理解
     ld = LaunchDescription()
 
     # 先声明参数
@@ -189,4 +188,3 @@ def generate_launch_description():
     # ld.add_action(rviz)
 
     return ld
-    #TODO: 完善理解

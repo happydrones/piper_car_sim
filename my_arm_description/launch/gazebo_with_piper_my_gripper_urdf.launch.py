@@ -1,18 +1,18 @@
 #FIXME: 路径问题暂时解决了，后续还是希望使用package://方法获取meshes
 #TODO :修改$GAZEBO_MODEL_PATH变量设置方法
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 from launch.actions import ExecuteProcess
 from launch_ros.parameter_descriptions import ParameterValue  # 提供参数值包装
 from launch.substitutions import Command          # 用于在 launch 中执行 xacro
-
+from launch.event_handlers import OnProcessExit
 def generate_launch_description():
     robot_name_in_model = 'yunhai_gripper'
     package_name = 'my_arm_description'
-    urdf_name = 'only_gripper.urdf.xacro'
+    urdf_name = 'piper_with_my_gripper_description_gazebo.urdf.xacro'
 
     pkg_Path = FindPackageShare(package_name)
     # ====== 可调参数 ======
@@ -26,7 +26,11 @@ def generate_launch_description():
     model_arg        = DeclareLaunchArgument('model',
                                             description='Absolute path to robot urdf file',
                                             default_value=PathJoinSubstitution([pkg_Path, 'urdf', urdf_name]))
-
+    # ====== RViz ======
+    rviz_arg         = DeclareLaunchArgument('rvizconfig',
+                                            default_value=PathJoinSubstitution([pkg_Path, 'rviz', 'rviz.rviz']),
+                                            description='Path to an RViz config file'
+    )
     
     robot_description = {'robot_description': ParameterValue(
     Command(['xacro ', LaunchConfiguration('model')]), value_type=str)}
@@ -52,12 +56,16 @@ def generate_launch_description():
         parameters=[robot_description],   # 关键：把同名参数也传给 spawner
         output='screen',
     )
-
-    # ====== RViz ======
-    rviz_arg = DeclareLaunchArgument(
-        'rvizconfig',
-        default_value=PathJoinSubstitution([pkg_Path, 'rviz', 'rviz.rviz']),
-        description='Path to an RViz config file'
+    action_load_joint_state_controller = ExecuteProcess(
+        cmd=['ros2', 'control', 'load_controller', '--set-state', 'active', 
+             'arm_controller'],
+        output='screen'
+        )
+    close_evt1 =  RegisterEventHandler( 
+            event_handler=OnProcessExit(
+                target_action=spawn_entity_cmd,
+                on_exit=[action_load_joint_state_controller],
+            )
     )
     rviz = Node(
         package='rviz2',
@@ -76,5 +84,8 @@ def generate_launch_description():
     ld.add_action(rviz_arg)
     ld.add_action(rviz)
     ld.add_action(rsp)
+    # 把它添加进来
+    ld.add_action(jsp)
     ld.add_action(spawn_entity_cmd)
+    ld.add_action(close_evt1)
     return ld
